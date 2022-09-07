@@ -4,14 +4,52 @@ import { useSignal, useComputed } from "@preact/signals-react";
 
 import { useState, useEffect } from "react";
 
-const state = signal({});
+import Article from './features/article';
+
+const state = signal({
+  home:[],
+  article:undefined,
+});
+
+const API_URL = "https://api.realworld.io/api/";
 
 
+const showArticle = (slug, e) => {
+  e.preventDefault();
+
+  const fetchArticle = async () => {
+    const URL = `${API_URL}articles/${slug}`;
+
+    const response = await fetch(URL);
+    const data = await response.json();
+
+    const updates = {
+      home: {...state.value.home},
+      article: data.article
+    }
+    state.value = updates;
+    
+  };
+
+  fetchArticle();
+}
+
+function renderArticle(article) {
+  if (!article) return undefined;
+  return (
+    <article>
+        <h2>{article.title}</h2>
+        <div>{article.body}</div>
+    </article>
+  )
+}
 
 function renderPost(articles =  []) {
   let ui = <h3>still loading..</h3>;
   ui = articles.map(article => {
-    return <li key={article.slug}>{article.title}</li>
+    return <li key={article.slug}>
+      <a onClick={showArticle.bind(null, article.slug)} href={`${API_URL}${article.title}`}>{article.title}</a> 
+    </li>
   })  
 
     
@@ -27,32 +65,36 @@ export default function Home() {
 
   useEffect(() => {
     const fetchArticles = async () => {
-      const URL = `https://api.realworld.io/api/articles?limit=10&offset=0`;
+      const URL = `${API_URL}articles?limit=10&offset=0`;
 
       const response = await fetch(URL);
       const data = await response.json();
       console.log("FETCH: ", data);
-      state.value = data;
-      //setArticles(data);
+      const updates = {
+        home: data,
+        article: undefined
+      }
+      state.value = updates;
+
+      console.log("INSIDE: ", state.value.home);
+
     };
     fetchArticles();
   }, []);
 
-  //console.log("INSIDE: ", articles.value);
+  const {articles} = state.value.home;
   return (
     <div>
-        {!state.value["articles"] && <h2>Loading...</h2>}
+      {!articles && <h2>Loading...</h2>}
         
-        {JSON.stringify(state.value, null, 2)}
+      <h2>Global Articles</h2>
 
-        <h2> {state.value.articlesCount} </h2>
-
-        <ul>
-          {
-            renderPost(state.value.articles)
-          }
-      </ul>
-      
+     <ul>
+        {
+          renderPost(articles)
+        }
+    </ul>
+     {renderArticle(state.value.article)} 
 
     </div>
   );
