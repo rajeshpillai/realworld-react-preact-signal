@@ -1,87 +1,39 @@
-import { signal, computed } from "@preact/signals-react";
+import { signal, computed, effect } from "@preact/signals-react";
+import { useSignal, useComputed } from "@preact/signals-react";
 
-const todos = signal([
-  { text: "Write my first post", completed: true },
-  { text: "Buy new groceries", completed: false },
-  { text: "Walk the dog", completed: false }
-]);
+import { useState, useEffect } from "react";
 
-const uiStatus = signal({
-  edit: false,
-  todoIndex: -1
-});
+//const articles = signal([]);
 
-const completedCount = computed(() => {
-  return todos.value.filter((todo) => todo.completed).length;
-});
+export default function Home() {
+  const state = useSignal(undefined);
+  const [_, refresh] = useState();
+  effect(() => {
+    console.log("value changed..", state.value);
+  });
 
-const newItem = signal("");
+  useEffect(() => {
+    const fetchArticles = async () => {
+      const URL = `https://api.realworld.io/api/articles?limit=10&offset=0`;
 
-function addTodo() {
-  if (!uiStatus.value.edit) {
-    todos.value = [...todos.value, { text: newItem.value, completed: false }];
-    newItem.value = ""; // Reset input value on add
-  } else {
-    todos.value[uiStatus.value.todoIndex].text = newItem.value;
-    todos.value = [...todos.value];
-  }
-}
+      const response = await fetch(URL);
+      const data = await response.json();
+      console.log("FETCH: ", data);
+      state.value = data;
+    };
+    fetchArticles();
+  }, []);
 
-function cancelEditTodo() {
-  uiStatus.value = {
-    edit: false,
-    todoIndex: -1
-  };
-  newItem.value = "";
-}
-
-function removeTodo(index) {
-  todos.value.splice(index, 1);
-  todos.value = [...todos.value];
-}
-
-function editTodo(index) {
-  uiStatus.value = {
-    edit: true,
-    todoIndex: index
-  };
-  newItem.value = todos.value[index].text;
-}
-
-export default function TodoList() {
-  const onInput = (event) => (newItem.value = event.target.value);
-
+  //console.log("INSIDE: ", articles.value);
   return (
-    <>
-      <input type="text" value={newItem.value} onInput={onInput} />
-      <button onClick={addTodo}>
-        {uiStatus.value.edit ? "Update" : "Add"}
-      </button>
-
-      {uiStatus.value.edit && <button onClick={cancelEditTodo}>Cancel</button>}
-
+    <div>
       <ul>
-        {todos.value.map((todo, index) => {
-          return (
-            <li>
-              <input
-                type="checkbox"
-                checked={todo.completed}
-                onInput={() => {
-                  todo.completed = !todo.completed;
-                  todos.value = [...todos.value];
-                }}
-              />
-              {todo.completed ? <s>{todo.text}</s> : todo.text}{" "}
-              <button onClick={() => removeTodo(index)}>
-                <span>❌</span>
-              </button>
-              <button onClick={() => editTodo(index)}>✎</button>
-            </li>
-          );
-        })}
+        {!state.value && <h2>Loading...</h2>}
+        {state.value &&
+          state.value.articles.map((article, index) => {
+            return <li>{article.title}</li>;
+          })}
       </ul>
-      <p>Completed count: {completedCount.value}</p>
-    </>
+    </div>
   );
 }
