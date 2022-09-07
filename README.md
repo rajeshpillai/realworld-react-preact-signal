@@ -1,2 +1,2 @@
-# realworld-react-preact-signal
+# react-with-preact-signals
 Created with CodeSandbox
