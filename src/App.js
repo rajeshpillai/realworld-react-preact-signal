@@ -1,3 +1,4 @@
+
 import { signal, computed, effect } from "@preact/signals-react";
 import { useSignal, useComputed } from "@preact/signals-react";
 
@@ -7,13 +8,13 @@ const state = signal({});
 
 
 
-
 function renderPost(articles =  []) {
-  console.log("BODY: ", articles);
   let ui = <h3>still loading..</h3>;
   ui = articles.map(article => {
-    return <div>{article.title}</div>
+    return <li key={article.slug}>{article.title}</li>
   })  
+
+    
   console.log("UI: ", ui);
   return ui;
 }
@@ -46,20 +47,12 @@ export default function Home() {
 
         <h2> {state.value.articlesCount} </h2>
 
-        {state.value["articles"] && <>
-          <h2>{state.value.articles[0].title}</h2>
-          <h2>{state.value.articles[1].title}</h2>
-          </>
-        }
-
-        {state.value["articles"] && <>
-            {
-              state.value.articles.map(a => {
-                return a.title
-              })
-            }
-          </>
-        }
+        <ul>
+          {
+            renderPost(state.value.articles)
+          }
+      </ul>
+      
 
     </div>
   );
