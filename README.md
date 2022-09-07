@@ -1,2 +1,2 @@
 # react-with-preact-signals
-Created with CodeSandbox
+Real World Conduit App implementation using React + Preact Signal
