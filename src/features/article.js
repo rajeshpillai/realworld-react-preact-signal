@@ -5,7 +5,6 @@ export default function Article() {
   let slug = params.slug;
   return (
     <>
-      <h2>Single Article Page</h2>
       <h3>{slug}</h3>
     </>
   )
