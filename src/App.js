@@ -11,30 +11,6 @@ import Article from './features/article';
 import GlobalFeed from "./features/global-feed";
 
 
-
-const API_URL = "https://api.realworld.io/api/";
-
-
-const showArticle = (slug, e) => {
-  e.preventDefault();
-
-  const fetchArticle = async () => {
-    const URL = `${API_URL}articles/${slug}`;
-
-    const response = await fetch(URL);
-    const data = await response.json();
-
-    const updates = {
-      home: {...State.value.home},
-      article: data.article
-    }
-    State.value = updates;
-    
-  };
-
-  fetchArticle();
-}
-
 function renderArticle(article) {
   if (!article) return undefined;
   return (
@@ -44,7 +20,6 @@ function renderArticle(article) {
     </article>
   )
 }
-
 
 
 export default function Home() {
