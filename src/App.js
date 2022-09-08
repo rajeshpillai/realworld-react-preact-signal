@@ -4,7 +4,10 @@ import { useSignal, useComputed } from "@preact/signals-react";
 
 import { useState, useEffect } from "react";
 
+import { BrowserRouter, Routes, Route, Link, Outlet } from "react-router-dom";
+
 import Article from './features/article';
+import GlobalFeed from "./features/global-feed";
 
 const state = signal({
   home:[],
@@ -49,6 +52,12 @@ function renderPost(articles =  []) {
   ui = articles.map(article => {
     return <li key={article.slug}>
       <a onClick={showArticle.bind(null, article.slug)} href={`${API_URL}${article.title}`}>{article.title}</a> 
+      <Link
+            to={`/articles/${article.slug}`}
+            key={article.slug}
+          >
+            {article.title}
+        </Link>
     </li>
   })  
 
@@ -88,7 +97,14 @@ export default function Home() {
       {!articles && <h2>Loading...</h2>}
         
       <h2>Global Articles</h2>
-
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<GlobalFeed />} />
+          
+          <Route path="/articles/:slug" element={<Article />}>
+            <Route path=":slug" element={<Article />} />
+          </Route>
+        </Routes>
      <ul>
         {
           renderPost(articles)
@@ -96,6 +112,11 @@ export default function Home() {
     </ul>
      {renderArticle(state.value.article)} 
 
+        
+     </BrowserRouter>
+
+      <Outlet/>
+    
     </div>
   );
 }
